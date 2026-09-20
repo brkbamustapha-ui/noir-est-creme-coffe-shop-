@@ -114,3 +114,30 @@ revoke execute on function noir_private.check_token(text) from anon, authenticat
 --     end if;
 -- et n'est exécutable que par le rôle `anon`, utilisé par le serveur Next.js
 -- qui seul détient le secret.
+
+-- ------------------------------------------------ photos téléversées ---
+-- Les photos importées depuis le tableau de bord sont stockées ici plutôt que
+-- dans Supabase Storage : écrire dans un bucket demanderait soit une clé
+-- service_role (dont l'application ne dispose pas), soit un bucket ouvert en
+-- écriture à `anon`, que n'importe quel porteur de la clé publique pourrait
+-- remplir. Les écritures passent donc par le même secret serveur que le reste.
+create table if not exists public.noir_photos (
+  id         uuid primary key default gen_random_uuid(),
+  mime       text not null check (mime in ('image/webp', 'image/jpeg', 'image/png')),
+  bytes      bytea not null,
+  size_bytes integer not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.noir_photos enable row level security;
+-- Aucune policy : la clé publique n'atteint pas la table.
+revoke all on public.noir_photos from anon, authenticated;
+
+-- Fonctions (corps complet dans la migration `noir_photo_uploads` du projet) :
+--   noir_admin_save_photo(p_token, p_mime, p_base64) -> uuid
+--       vérifie le secret, refuse un type hors JPG/PNG/WebP et au-delà de 3 Mo.
+--   noir_photo_get(p_id) -> (mime, base64)
+--       chemin de lecture de /api/photo/[id] ; les photos d'une carte sont
+--       publiques par nature.
+--   noir_admin_prune_photos(p_token) -> integer
+--       supprime les photos qu'aucun produit ne référence plus.

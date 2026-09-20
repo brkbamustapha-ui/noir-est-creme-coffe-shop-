@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CupMark } from "@/components/CupMark";
+import { prepareImage } from "@/lib/image";
 import type { Item, MenuSection, Settings } from "@/lib/types";
 
 type Props = { sections: MenuSection[]; settings: Settings; offline: boolean };
@@ -39,6 +40,7 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [tab, setTab] = useState<"carte" | "categories" | "infos">("carte");
 
@@ -86,6 +88,36 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
     body: JSON.stringify(body),
   });
 
+  async function uploadPhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // so the same file can be picked again after an error
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      return notify("err", "Choisissez une image (JPG, PNG ou WebP).");
+    }
+
+    setUploading(true);
+    try {
+      const prepared = await prepareImage(file);
+      const body = new FormData();
+      body.append("file", prepared);
+
+      const response = await fetch("/api/admin/photos", { method: "POST", body });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        notify("err", payload.error || "Envoi de la photo impossible.");
+        return;
+      }
+      setItemDraft((draft) => (draft ? { ...draft, image_url: payload.url } : draft));
+      notify("ok", "Photo importée.");
+    } catch {
+      notify("err", "Cette image n'a pas pu être lue.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function saveItem() {
     if (!itemDraft?.name.trim()) return notify("err", "Le nom est obligatoire.");
     const ok = await send("/api/admin/items", json(itemDraft), "Produit enregistré.");
@@ -131,7 +163,7 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
     router.refresh();
   }
 
-  const working = busy || pending;
+  const working = busy || pending || uploading;
 
   return (
     <div className="min-h-dvh">
@@ -470,21 +502,51 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
             />
           </div>
           <div>
-            <label className={label} htmlFor="item-image">Photo (optionnel)</label>
+            <span className={label}>Photo (optionnel)</span>
+
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <label
+                className={`${btnGhost} cursor-pointer ${uploading ? "opacity-50" : ""}`}
+                aria-busy={uploading}
+              >
+                {uploading ? "Envoi…" : "Importer une photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  disabled={uploading}
+                  onChange={uploadPhoto}
+                />
+              </label>
+              {itemDraft.image_url && (
+                <button
+                  type="button"
+                  className={btnGhost}
+                  onClick={() => setItemDraft({ ...itemDraft, image_url: "" })}
+                >
+                  Retirer
+                </button>
+              )}
+            </div>
+
             <input
               id="item-image"
-              className={`${field} mt-1.5`}
-              placeholder="/menu/capuccino.webp ou https://…"
+              className={`${field} mt-2`}
+              placeholder="…ou coller un lien"
               value={itemDraft.image_url}
               onChange={(event) => setItemDraft({ ...itemDraft, image_url: event.target.value })}
             />
+
             {itemDraft.image_url && (
               <img
                 src={itemDraft.image_url}
                 alt=""
-                className="mt-2 h-24 w-full rounded-lg object-cover"
+                className="mt-2 h-28 w-full rounded-lg object-cover"
               />
             )}
+            <p className="mt-1.5 font-body text-[10px] text-creme-muted">
+              La photo est réduite automatiquement avant l&apos;envoi.
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
