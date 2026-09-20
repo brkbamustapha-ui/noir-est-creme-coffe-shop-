@@ -64,3 +64,18 @@ export async function fetchPublicMenu(): Promise<MenuData> {
       .filter((section) => section.items.length > 0),
   };
 }
+
+/**
+ * Number of products in the reference snapshot that are no longer on the card.
+ * Returns 0 when the check is unavailable, so the dashboard never blocks on it.
+ */
+export async function fetchMissingCount(): Promise<number> {
+  const supabase = getSupabase();
+  if (!supabase) return 0;
+  try {
+    const { data, error } = await supabase.rpc("noir_menu_missing");
+    return error ? 0 : Number(data ?? 0);
+  } catch {
+    return 0;
+  }
+}

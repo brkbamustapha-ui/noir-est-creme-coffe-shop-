@@ -6,7 +6,12 @@ import { CupMark } from "@/components/CupMark";
 import { prepareImage } from "@/lib/image";
 import type { Item, MenuSection, Settings } from "@/lib/types";
 
-type Props = { sections: MenuSection[]; settings: Settings; offline: boolean };
+type Props = {
+  sections: MenuSection[];
+  settings: Settings;
+  offline: boolean;
+  missingCount: number;
+};
 
 type ItemDraft = {
   id: string | null;
@@ -36,7 +41,7 @@ const btnGold =
 const btnGhost =
   "rounded-lg border border-creme/20 px-3 py-2 font-body text-[11px] uppercase tracking-[0.16em] text-creme/80 transition-colors hover:border-creme/40 hover:text-creme disabled:opacity-50";
 
-export function AdminDashboard({ sections, settings, offline }: Props) {
+export function AdminDashboard({ sections, settings, offline, missingCount }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
@@ -197,6 +202,24 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
             Base de données injoignable — la carte de secours est affichée. Les modifications ne
             seront pas enregistrées tant que la connexion Supabase n&apos;est pas rétablie.
           </p>
+        )}
+
+        {missingCount > 0 && (
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+            <p className="flex-1 font-body text-xs text-amber-200">
+              {missingCount} produit(s) de la carte de référence ne figurent plus dans le menu.
+            </p>
+            <button
+              type="button"
+              disabled={working}
+              onClick={() =>
+                send("/api/admin/restore", { method: "POST" }, "Produits restaurés.")
+              }
+              className={btnGold}
+            >
+              Restaurer
+            </button>
+          </div>
         )}
 
         <section className="grid grid-cols-3 gap-3">

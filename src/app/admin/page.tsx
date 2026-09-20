@@ -1,4 +1,4 @@
-import { fetchMenu } from "@/lib/menu";
+import { fetchMenu, fetchMissingCount } from "@/lib/menu";
 import { AdminDashboard } from "@/components/AdminDashboard";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +9,16 @@ export const metadata = {
 };
 
 export default async function AdminPage() {
-  const { sections, settings, offline } = await fetchMenu();
-  return <AdminDashboard sections={sections} settings={settings} offline={offline} />;
+  const [{ sections, settings, offline }, missingCount] = await Promise.all([
+    fetchMenu(),
+    fetchMissingCount(),
+  ]);
+  return (
+    <AdminDashboard
+      sections={sections}
+      settings={settings}
+      offline={offline}
+      missingCount={missingCount}
+    />
+  );
 }

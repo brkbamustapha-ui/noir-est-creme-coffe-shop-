@@ -141,3 +141,28 @@ revoke all on public.noir_photos from anon, authenticated;
 --       publiques par nature.
 --   noir_admin_prune_photos(p_token) -> integer
 --       supprime les photos qu'aucun produit ne référence plus.
+
+-- -------------------------------------------- filet de sécurité carte ---
+-- Copie de référence de la carte. Pendant le développement, un produit a
+-- disparu deux fois de noir_items sans que l'API produits soit appelée, sans
+-- cause identifiable. Cette table permet de détecter un produit manquant et
+-- de le remettre, plutôt que de le voir disparaître silencieusement.
+create table if not exists public.noir_menu_snapshot (
+  cat_slug    text not null,
+  name        text not null,
+  description text,
+  price       text not null,
+  sort_order  integer not null default 0,
+  taken_at    timestamptz not null default now(),
+  primary key (cat_slug, name)
+);
+
+alter table public.noir_menu_snapshot enable row level security;
+revoke all on public.noir_menu_snapshot from anon, authenticated;
+
+-- Fonctions (corps complet dans la migration `noir_menu_snapshot_and_restore`) :
+--   noir_menu_missing() -> integer
+--       nombre de produits de référence absents de la carte ; lu par /admin.
+--   noir_admin_restore_menu(p_token) -> integer
+--       remet les produits manquants. N'écrase jamais un produit présent,
+--       donc ne défait pas une modification volontaire.
