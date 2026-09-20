@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --noir: #0b0b0b;
+  --creme: #efe3cd;
+  --or: #c9a227;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 6.5rem; }
+
+body {
+  background-color: var(--noir);
+  color: var(--creme);
+  /* warm haze so the black reads as roasted, not flat */
+  background-image:
+    radial-gradient(60rem 40rem at 50% -10%, rgba(201, 162, 39, 0.10), transparent 60%),
+    radial-gradient(40rem 30rem at 100% 100%, rgba(239, 227, 205, 0.05), transparent 65%);
+  background-attachment: fixed;
+}
+
+::selection { background: var(--or); color: #0b0b0b; }
+
+/* dotted leader between an item name and its price — classic printed-menu cue */
+.leader {
+  flex: 1 1 auto;
+  margin: 0 0.6rem;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted rgba(239, 227, 205, 0.28);
+  transform: translateY(-0.28rem);
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.65), transparent);
+}
+
+.card-sheen {
+  background:
+    linear-gradient(160deg, rgba(239, 227, 205, 0.07), rgba(239, 227, 205, 0.02) 45%, transparent 70%),
+    #171614;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rise { animation: none; }
+}
+
+/* hide scrollbar on the sticky category rail without losing the scroll */
+.no-bar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-bar::-webkit-scrollbar { display: none; }
+
+input, textarea, select { font-size: 16px; } /* stops iOS zoom-on-focus */
