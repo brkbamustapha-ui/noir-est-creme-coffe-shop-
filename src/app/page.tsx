@@ -32,22 +32,85 @@ function ListRow({ item }: { item: Item }) {
 }
 
 function CardTile({ item, index }: { item: Item; index: number }) {
+  const photo = item.image_url;
+
   return (
     <article
-      className="card-sheen rise group flex flex-col items-center rounded-2xl border border-creme/10 p-6 text-center transition-colors duration-500 hover:border-or/40"
+      className="rise group flex h-full flex-col overflow-hidden rounded-2xl border border-creme/10 bg-noir-card transition-[border-color,box-shadow,transform] duration-500 hover:-translate-y-1 hover:border-or/45 hover:shadow-[0_20px_55px_-20px_rgba(201,162,39,0.45)]"
       style={{ animationDelay: `${index * 70}ms` }}
     >
-      <CupMark className="h-10 w-10 text-or/70 transition-colors duration-500 group-hover:text-or" />
-      <h3 className="mt-4 font-display text-xl font-medium tracking-wide text-creme-soft">
-        {item.name}
-      </h3>
-      {item.description && (
-        <p className="mt-1.5 font-body text-[11px] font-light uppercase tracking-[0.14em] text-creme-muted">
-          {item.description}
-        </p>
+      {photo ? (
+        <div className="relative aspect-[3/2] overflow-hidden">
+          <img
+            src={photo}
+            alt={item.name}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.07]"
+          />
+          {/* melt the photo into the card instead of stopping at a hard edge */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-noir-card via-noir-card/55 to-transparent" />
+        </div>
+      ) : (
+        // no photo: a compact crest rather than a tall empty frame
+        <div className="card-sheen flex h-20 w-full shrink-0 items-center justify-center">
+          <CupMark className="h-9 w-9 text-or/60 transition-colors duration-500 group-hover:text-or" />
+        </div>
       )}
-      <div className="mt-4 h-px w-10 bg-or/40" />
-      <p className="mt-3 font-display text-2xl font-semibold text-or-soft">{item.price}</p>
+
+      <div className="flex flex-1 flex-col items-center px-5 pb-6 pt-3 text-center">
+        <h3 className="font-display text-xl font-medium tracking-wide text-creme-soft">
+          {item.name}
+        </h3>
+        {item.description && (
+          <p className="mt-1.5 font-body text-[11px] font-light uppercase tracking-[0.14em] text-creme-muted">
+            {item.description}
+          </p>
+        )}
+        <div className="mt-auto pt-4">
+          <div className="mx-auto h-px w-10 bg-or/40" />
+          <p className="mt-3 font-display text-2xl font-semibold text-or-soft">{item.price}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/**
+ * A product with a photo leads its section as a wide feature, so the picture
+ * is big enough to be appetising instead of a thumbnail in a 4-up grid.
+ */
+function FeatureCard({ item }: { item: Item }) {
+  return (
+    <article className="rise group grid overflow-hidden rounded-2xl border border-creme/10 bg-noir-card transition-[border-color,box-shadow] duration-500 hover:border-or/45 hover:shadow-[0_24px_60px_-24px_rgba(201,162,39,0.45)] sm:grid-cols-2">
+      <div className="relative aspect-[4/3] overflow-hidden sm:aspect-auto sm:min-h-[19rem]">
+        <img
+          src={item.image_url ?? ""}
+          alt={item.name}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.05]"
+        />
+        {/* fade the photo into the panel: downward on mobile, sideways on desktop */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-noir-card to-transparent sm:hidden" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/4 bg-gradient-to-l from-noir-card to-transparent sm:block" />
+      </div>
+
+      <div className="flex flex-col items-center justify-center px-6 py-8 text-center">
+        <span className="font-body text-[10px] uppercase tracking-[0.3em] text-or/80">
+          La signature
+        </span>
+        <h3 className="mt-3 font-display text-3xl font-medium tracking-wide text-creme-soft sm:text-4xl">
+          {item.name}
+        </h3>
+        {item.description && (
+          <p className="mt-2 font-body text-[11px] font-light uppercase tracking-[0.16em] text-creme-muted">
+            {item.description}
+          </p>
+        )}
+        <div className="mt-5 h-px w-12 bg-or/40" />
+        <p className="mt-4 font-display text-4xl font-semibold text-or-soft">{item.price}</p>
+      </div>
     </article>
   );
 }
@@ -66,6 +129,11 @@ function cardGrid(count: number): string {
 }
 
 function Section({ section }: { section: MenuSection }) {
+  const featureIndex =
+    section.layout === "cards" ? section.items.findIndex((item) => item.image_url) : -1;
+  const feature = featureIndex >= 0 ? section.items[featureIndex] : null;
+  const tiles = feature ? section.items.filter((_, i) => i !== featureIndex) : section.items;
+
   return (
     <section id={section.slug} className="scroll-mt-28 py-12 sm:py-16">
       <header className="text-center">
@@ -85,10 +153,15 @@ function Section({ section }: { section: MenuSection }) {
       </header>
 
       {section.layout === "cards" ? (
-        <div className={`mt-8 grid grid-cols-1 gap-4 ${cardGrid(section.items.length)}`}>
-          {section.items.map((item, index) => (
-            <CardTile key={item.id} item={item} index={index} />
-          ))}
+        <div className="mt-8 space-y-4">
+          {feature && <FeatureCard item={feature} />}
+          {tiles.length > 0 && (
+            <div className={`grid grid-cols-1 gap-4 ${cardGrid(tiles.length)}`}>
+              {tiles.map((item, index) => (
+                <CardTile key={item.id} item={item} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <ul className="mx-auto mt-7 max-w-2xl divide-y divide-creme/[0.07]">

@@ -23,6 +23,7 @@ create table if not exists public.noir_items (
   name         text not null,
   description  text,
   price        text not null default '',
+  image_url    text,
   is_available boolean not null default true,
   sort_order   integer not null default 0,
   created_at   timestamptz not null default now(),
@@ -103,6 +104,8 @@ $$;
 revoke execute on function noir_private.check_token(text) from anon, authenticated;
 
 -- --------------------------------------------------- RPC d'administration ---
+-- `noir_admin_save_item` accepte aussi `p_image_url` : chemin du site (/menu/x.webp)
+-- ou URL https, validé côté base.
 -- Voir la migration `noir_et_creme_admin_rpc` appliquée sur le projet pour le
 -- corps complet de noir_admin_save_item / delete_item / save_category /
 -- delete_category / save_settings. Chacune commence par :

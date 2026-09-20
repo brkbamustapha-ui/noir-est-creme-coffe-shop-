@@ -4,11 +4,13 @@ import type { MenuSection } from "./types";
  * The printed menu, hard-coded. Used when Supabase is unreachable or not yet
  * configured so the public menu never renders empty.
  */
-const raw: Array<[string, string, string | null, "list" | "cards", Array<[string, string | null, string]>]> = [
+const raw: Array<
+  [string, string, string | null, "list" | "cards", Array<[string, string | null, string, string?]>]
+> = [
   ["signatures", "NOS SIGNATURES", "Les incontournables de la maison", "cards", [
     ["Espresso Double", "Lavazza / San Marco", "300 DA"],
     ["Café au Lait", "Onctueux, mousse de lait", "350 DA"],
-    ["Capucino", "Cacao & lait velouté", "400 DA"],
+    ["Capucino", "Cacao & lait velouté", "400 DA", "/menu/capuccino.webp"],
     ["Café Capsule", "Nespresso / L'Or", "250 DA"],
   ]],
   ["boissons-chaudes", "BOISSONS CHAUDES", "Torréfaction du jour", "list", [
@@ -52,12 +54,13 @@ export const FALLBACK_MENU: MenuSection[] = raw.map(([slug, name, tagline, layou
   layout,
   sort_order: ci + 1,
   is_visible: true,
-  items: items.map(([itemName, description, price], ii) => ({
+  items: items.map(([itemName, description, price, imageUrl], ii) => ({
     id: `fallback-${slug}-${ii}`,
     category_id: `fallback-${slug}`,
     name: itemName,
     description,
     price,
+    image_url: imageUrl ?? null,
     is_available: true,
     sort_order: ii + 1,
   })),

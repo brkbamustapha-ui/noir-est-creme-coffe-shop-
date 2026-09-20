@@ -10,6 +10,7 @@ type ItemPayload = {
   name?: string;
   description?: string;
   price?: string;
+  image_url?: string;
   is_available?: boolean;
   sort_order?: number;
 };
@@ -32,6 +33,7 @@ export async function POST(request: Request) {
     p_name: body.name,
     p_description: body.description ?? "",
     p_price: body.price ?? "",
+    p_image_url: body.image_url ?? "",
     p_available: body.is_available ?? true,
     p_sort_order: Number.isFinite(body.sort_order) ? body.sort_order : 0,
   });

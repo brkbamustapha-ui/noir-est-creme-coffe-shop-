@@ -16,6 +16,7 @@ export type Item = {
   name: string;
   description: string | null;
   price: string;
+  image_url: string | null;
   is_available: boolean;
   sort_order: number;
 };

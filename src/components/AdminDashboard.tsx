@@ -13,6 +13,7 @@ type ItemDraft = {
   name: string;
   description: string;
   price: string;
+  image_url: string;
   is_available: boolean;
   sort_order: number;
 };
@@ -236,6 +237,7 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
                         name: "",
                         description: "",
                         price: "",
+                        image_url: "",
                         is_available: true,
                         sort_order: section.items.length + 1,
                       })
@@ -252,6 +254,13 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
                       key={item.id}
                       className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3"
                     >
+                      {item.image_url && (
+                        <img
+                          src={item.image_url}
+                          alt=""
+                          className="h-10 w-14 shrink-0 rounded-md object-cover"
+                        />
+                      )}
                       <div className="min-w-0 flex-1">
                         <p
                           className={`font-body text-sm ${
@@ -289,6 +298,7 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
                               name: item.name,
                               description: item.description ?? "",
                               price: item.price,
+                              image_url: item.image_url ?? "",
                               is_available: item.is_available,
                               sort_order: item.sort_order,
                             })
@@ -458,6 +468,23 @@ export function AdminDashboard({ sections, settings, offline }: Props) {
               value={itemDraft.description}
               onChange={(event) => setItemDraft({ ...itemDraft, description: event.target.value })}
             />
+          </div>
+          <div>
+            <label className={label} htmlFor="item-image">Photo (optionnel)</label>
+            <input
+              id="item-image"
+              className={`${field} mt-1.5`}
+              placeholder="/menu/capuccino.webp ou https://…"
+              value={itemDraft.image_url}
+              onChange={(event) => setItemDraft({ ...itemDraft, image_url: event.target.value })}
+            />
+            {itemDraft.image_url && (
+              <img
+                src={itemDraft.image_url}
+                alt=""
+                className="mt-2 h-24 w-full rounded-lg object-cover"
+              />
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
