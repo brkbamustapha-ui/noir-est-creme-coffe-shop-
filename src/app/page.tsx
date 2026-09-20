@@ -52,6 +52,19 @@ function CardTile({ item, index }: { item: Item; index: number }) {
   );
 }
 
+/**
+ * Pick a column count that fills the last row, so a 3-card section doesn't
+ * render with an empty fourth slot.
+ */
+function cardGrid(count: number): string {
+  if (count <= 1) return "sm:grid-cols-1 lg:grid-cols-1 mx-auto max-w-sm";
+  if (count === 2) return "sm:grid-cols-2 lg:grid-cols-2 mx-auto max-w-2xl";
+  if (count === 3) return "sm:grid-cols-2 lg:grid-cols-3";
+  if (count % 4 === 0) return "sm:grid-cols-2 lg:grid-cols-4";
+  if (count % 3 === 0) return "sm:grid-cols-2 lg:grid-cols-3";
+  return "sm:grid-cols-2 lg:grid-cols-4";
+}
+
 function Section({ section }: { section: MenuSection }) {
   return (
     <section id={section.slug} className="scroll-mt-28 py-12 sm:py-16">
@@ -72,7 +85,7 @@ function Section({ section }: { section: MenuSection }) {
       </header>
 
       {section.layout === "cards" ? (
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={`mt-8 grid grid-cols-1 gap-4 ${cardGrid(section.items.length)}`}>
           {section.items.map((item, index) => (
             <CardTile key={item.id} item={item} index={index} />
           ))}
