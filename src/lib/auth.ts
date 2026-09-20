@@ -7,9 +7,6 @@
 export const SESSION_COOKIE = "noir_session";
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-const DEFAULT_USERNAME = "noir est creme";
-const DEFAULT_PASSWORD = "noir est creme coffe shop";
-
 /**
  * Forgiving comparison for credentials typed on a phone: case, accents and
  * repeated spaces are ignored so "Noir Est Crème" === "noir est creme".
@@ -61,13 +58,7 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export function checkCredentials(username: string, password: string): boolean {
-  const expectedUser = normalize(process.env.ADMIN_USERNAME || DEFAULT_USERNAME);
-  const expectedPass = normalize(process.env.ADMIN_PASSWORD || DEFAULT_PASSWORD);
-  const userOk = safeEqual(normalize(username || ""), expectedUser);
-  const passOk = safeEqual(normalize(password || ""), expectedPass);
-  return userOk && passOk;
-}
+
 
 export async function createSession(): Promise<string> {
   const payload = b64url(

@@ -1,4 +1,5 @@
 import { fetchMenu, fetchMissingCount } from "@/lib/menu";
+import { currentUsername } from "@/lib/credentials";
 import { AdminDashboard } from "@/components/AdminDashboard";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +10,10 @@ export const metadata = {
 };
 
 export default async function AdminPage() {
-  const [{ sections, settings, offline }, missingCount] = await Promise.all([
+  const [{ sections, settings, offline }, missingCount, username] = await Promise.all([
     fetchMenu(),
     fetchMissingCount(),
+    currentUsername(),
   ]);
   return (
     <AdminDashboard
@@ -19,6 +21,7 @@ export default async function AdminPage() {
       settings={settings}
       offline={offline}
       missingCount={missingCount}
+      username={username}
     />
   );
 }

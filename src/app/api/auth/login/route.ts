@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { SESSION_COOKIE, checkCredentials, createSession, sessionCookieOptions } from "@/lib/auth";
+import { SESSION_COOKIE, createSession, sessionCookieOptions } from "@/lib/auth";
+import { verifyCredentials } from "@/lib/credentials";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,7 +43,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   }
 
-  if (!checkCredentials(username, password)) {
+  const check = await verifyCredentials(username, password);
+  if (!check.ok) {
+    if (check.reason === "unavailable") {
+      return NextResponse.json(
+        { error: "Connexion impossible : base de données injoignable." },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: "Identifiant ou mot de passe incorrect." },
       { status: 401 },

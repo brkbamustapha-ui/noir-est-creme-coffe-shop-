@@ -11,6 +11,7 @@ type Props = {
   settings: Settings;
   offline: boolean;
   missingCount: number;
+  username: string;
 };
 
 type ItemDraft = {
@@ -41,17 +42,23 @@ const btnGold =
 const btnGhost =
   "rounded-lg border border-creme/20 px-3 py-2 font-body text-[11px] uppercase tracking-[0.16em] text-creme/80 transition-colors hover:border-creme/40 hover:text-creme disabled:opacity-50";
 
-export function AdminDashboard({ sections, settings, offline, missingCount }: Props) {
+export function AdminDashboard({ sections, settings, offline, missingCount, username }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
-  const [tab, setTab] = useState<"carte" | "categories" | "infos">("carte");
+  const [tab, setTab] = useState<"carte" | "categories" | "infos" | "acces">("carte");
 
   const [itemDraft, setItemDraft] = useState<ItemDraft | null>(null);
   const [categoryDraft, setCategoryDraft] = useState<CategoryDraft | null>(null);
   const [form, setForm] = useState<Settings>(settings);
+  const [access, setAccess] = useState({
+    username,
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   const stats = useMemo(() => {
     const items = sections.flatMap((section) => section.items);
@@ -162,6 +169,24 @@ export function AdminDashboard({ sections, settings, offline, missingCount }: Pr
     );
   }
 
+  async function saveAccess() {
+    if (access.newPassword !== access.confirmPassword) {
+      return notify("err", "Les deux mots de passe ne correspondent pas.");
+    }
+    const ok = await send(
+      "/api/admin/credentials",
+      json({
+        currentPassword: access.currentPassword,
+        username: access.username,
+        newPassword: access.newPassword,
+      }),
+      "Identifiants mis à jour.",
+    );
+    if (ok) {
+      setAccess((a) => ({ ...a, currentPassword: "", newPassword: "", confirmPassword: "" }));
+    }
+  }
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/admin/login");
@@ -246,6 +271,7 @@ export function AdminDashboard({ sections, settings, offline, missingCount }: Pr
               ["carte", "Carte"],
               ["categories", "Catégories"],
               ["infos", "Infos du café"],
+              ["acces", "Identifiants"],
             ] as const
           ).map(([key, title]) => (
             <button
@@ -483,6 +509,74 @@ export function AdminDashboard({ sections, settings, offline, missingCount }: Pr
               >
                 Enregistrer
               </button>
+            </div>
+          </section>
+        )}
+        {tab === "acces" && (
+          <section className="mt-6 max-w-xl">
+            <div className="card-sheen space-y-4 rounded-xl border border-creme/10 p-5">
+              <div>
+                <label className={label} htmlFor="acc-user">Identifiant</label>
+                <input
+                  id="acc-user"
+                  className={`${field} mt-1.5`}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  value={access.username}
+                  onChange={(event) => setAccess({ ...access, username: event.target.value })}
+                />
+              </div>
+
+              <div className="h-px bg-creme/10" />
+
+              <div>
+                <label className={label} htmlFor="acc-current">Mot de passe actuel</label>
+                <input
+                  id="acc-current"
+                  type="password"
+                  autoComplete="current-password"
+                  className={`${field} mt-1.5`}
+                  value={access.currentPassword}
+                  onChange={(event) =>
+                    setAccess({ ...access, currentPassword: event.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className={label} htmlFor="acc-new">Nouveau mot de passe</label>
+                <input
+                  id="acc-new"
+                  type="password"
+                  autoComplete="new-password"
+                  className={`${field} mt-1.5`}
+                  value={access.newPassword}
+                  onChange={(event) => setAccess({ ...access, newPassword: event.target.value })}
+                />
+              </div>
+              <div>
+                <label className={label} htmlFor="acc-confirm">Confirmer le nouveau mot de passe</label>
+                <input
+                  id="acc-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  className={`${field} mt-1.5`}
+                  value={access.confirmPassword}
+                  onChange={(event) =>
+                    setAccess({ ...access, confirmPassword: event.target.value })
+                  }
+                />
+              </div>
+
+              <button type="button" disabled={working} onClick={saveAccess} className={btnGold}>
+                Enregistrer les identifiants
+              </button>
+
+              <p className="font-body text-[10px] leading-relaxed text-creme-muted">
+                Le mot de passe actuel est demandé pour confirmer. Minimum 8 caractères,
+                identifiant 3 caractères. À la connexion, la casse, les accents et les
+                espaces en double ne sont pas pris en compte. Les autres appareils déjà
+                connectés le restent jusqu&apos;à l&apos;expiration de leur session (8 h).
+              </p>
             </div>
           </section>
         )}

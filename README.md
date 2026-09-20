@@ -40,10 +40,27 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clé publique (lecture seule via RLS) |
 | `SUPABASE_ADMIN_TOKEN` | Secret serveur vérifié par les RPC `noir_admin_*` |
 | `AUTH_SECRET` | Clé de signature du cookie de session admin |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Identifiants du tableau de bord |
 
-Les identifiants sont comparés sans tenir compte de la casse, des accents ni des
-espaces multiples : « Noir Est Crème » équivaut à « noir est creme ».
+## Identifiants d'administration
+
+Ils ne sont pas dans les variables d'environnement : ils sont stockés en base,
+le mot de passe sous forme de hachage bcrypt, et se modifient depuis le
+tableau de bord (onglet « Identifiants »). Changer le mot de passe demande le
+mot de passe actuel.
+
+À la connexion, la comparaison ignore la casse, les accents et les espaces
+multiples : « Noir Est Crème » équivaut à « noir est creme ».
+
+En cas de perte de l'accès, réinitialiser directement en base :
+
+```sql
+update noir_private.admin_account
+set username = 'nouvel identifiant',
+    username_norm = 'nouvel identifiant',           -- minuscules, sans accents
+    password_hash = extensions.crypt('nouveau mot de passe',
+                                     extensions.gen_salt('bf', 10))
+where id = 1;
+```
 
 ## Base de données
 

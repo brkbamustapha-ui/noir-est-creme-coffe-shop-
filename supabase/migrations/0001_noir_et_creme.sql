@@ -166,3 +166,26 @@ revoke all on public.noir_menu_snapshot from anon, authenticated;
 --   noir_admin_restore_menu(p_token) -> integer
 --       remet les produits manquants. N'écrase jamais un produit présent,
 --       donc ne défait pas une modification volontaire.
+
+-- ------------------------------------------ identifiants administrateur ---
+-- Stockés en base pour être modifiables depuis le tableau de bord, sans
+-- redéploiement. Le mot de passe n'est jamais conservé en clair : bcrypt via
+-- pgcrypto. La normalisation (casse, accents, espaces doubles) est faite côté
+-- serveur avant d'arriver ici, pour n'avoir qu'une implémentation de la règle.
+create table if not exists noir_private.admin_account (
+  id            integer primary key default 1,
+  username      text not null,
+  username_norm text not null,
+  password_hash text not null,
+  updated_at    timestamptz not null default now(),
+  constraint admin_account_singleton check (id = 1)
+);
+revoke all on noir_private.admin_account from anon, authenticated;
+
+-- Fonctions (corps complet dans la migration `noir_admin_account` du projet) :
+--   noir_admin_check_credentials(p_token, p_username_norm, p_password_norm)
+--   noir_admin_get_username(p_token)
+--   noir_admin_set_credentials(p_token, p_current_norm, p_username,
+--                              p_username_norm, p_new_password_norm)
+--       exige le mot de passe actuel : une session volée ne suffit pas à
+--       verrouiller le propriétaire dehors.
