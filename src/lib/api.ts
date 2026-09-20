@@ -41,6 +41,12 @@ export async function callAdminRpc(
     if (message.includes("name_required")) {
       return NextResponse.json({ error: "Le nom est obligatoire." }, { status: 400 });
     }
+    if (message.includes("bad_image_url")) {
+      return NextResponse.json(
+        { error: "Lien de photo invalide : utilisez /menu/... ou une adresse https." },
+        { status: 400 },
+      );
+    }
     if (message.includes("not_found")) {
       return NextResponse.json({ error: "Élément introuvable." }, { status: 404 });
     }
