@@ -97,10 +97,7 @@ function FeatureCard({ item }: { item: Item }) {
       </div>
 
       <div className="flex flex-col items-center justify-center px-6 py-8 text-center">
-        <span className="font-body text-[10px] uppercase tracking-[0.3em] text-or/80">
-          La signature
-        </span>
-        <h3 className="mt-3 font-display text-3xl font-medium tracking-wide text-creme-soft sm:text-4xl">
+        <h3 className="font-display text-3xl font-medium tracking-wide text-creme-soft sm:text-4xl">
           {item.name}
         </h3>
         {item.description && (
