@@ -24,6 +24,22 @@ Le navigateur ne reçoit donc jamais de clé d'écriture.
 Si Supabase est injoignable, la carte imprimée est servie depuis
 `src/lib/fallback.ts` : le site ne s'affiche jamais vide.
 
+## Identité visuelle
+
+Le logo est décliné en quatre fichiers, tous dérivés de l'original :
+
+| Fichier | Usage |
+| --- | --- |
+| `public/brand/logo.webp` | Lockup complet — en-tête de la carte et page de connexion |
+| `public/brand/monogram.webp` | Blason NC seul — pied de page, en-tête admin, produits sans photo |
+| `src/app/icon.png`, `src/app/apple-icon.png` | Favicon et icône iOS (monogramme NC sur fond noir) |
+| `src/app/opengraph-image.jpg` | Vignette de partage (1200 × 630) |
+
+Le fond noir de l'original est détouré : les deux `.webp` sont transparents et
+se posent donc sur le dégradé de la page plutôt que sur un rectangle noir.
+Les trois fichiers de `src/app/` sont repris automatiquement par Next.js, sans
+balise à écrire.
+
 ## Développement
 
 ```bash

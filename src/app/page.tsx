@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { fetchPublicMenu } from "@/lib/menu";
 import { MenuNav } from "@/components/MenuNav";
-import { CupMark, Diamond } from "@/components/CupMark";
+import { BrandLockup, BrandMark, Diamond } from "@/components/Brand";
 import type { Item, MenuSection } from "@/lib/types";
 
 export const revalidate = 30;
@@ -53,8 +53,8 @@ function CardTile({ item, index }: { item: Item; index: number }) {
         </div>
       ) : (
         // no photo: a compact crest rather than a tall empty frame
-        <div className="card-sheen flex h-20 w-full shrink-0 items-center justify-center">
-          <CupMark className="h-9 w-9 text-or/60 transition-colors duration-500 group-hover:text-or" />
+        <div className="card-sheen flex h-24 w-full shrink-0 items-center justify-center">
+          <BrandMark className="h-14 w-auto opacity-55 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
       )}
 
@@ -182,16 +182,15 @@ export default async function MenuPage() {
           className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-72 w-72 rounded-full bg-or/10 blur-[90px]"
         />
         <div className="relative">
-          <CupMark className="mx-auto h-12 w-12 text-or" />
-          <h1 className="mt-6 font-display text-[2.6rem] font-light uppercase leading-[1.05] tracking-[0.16em] text-creme-soft sm:text-6xl">
-            {settings.shop_name}
+          <h1 className="flex justify-center">
+            <BrandLockup
+              priority
+              alt={settings.shop_name}
+              className="h-auto w-64 sm:w-80 lg:w-[23rem]"
+            />
           </h1>
-          <div className="mx-auto mt-6 flex items-center justify-center gap-3">
-            <span className="gold-rule w-20 sm:w-28" />
-            <Diamond className="h-2 w-2 text-or" />
-            <span className="gold-rule w-20 sm:w-28" />
-          </div>
-          <p className="mt-6 font-display text-base uppercase tracking-[0.28em] text-or-soft sm:text-lg">
+          {/* no divider here: the lockup already closes on its own rule */}
+          <p className="mt-7 font-display text-base uppercase tracking-[0.28em] text-or-soft sm:text-lg">
             {settings.slogan}
           </p>
           {settings.subtitle && (
@@ -221,7 +220,7 @@ export default async function MenuPage() {
 
       <footer className="mt-8 border-t border-creme/10 bg-black/40">
         <div className="mx-auto max-w-5xl px-4 py-12 text-center sm:px-6">
-          <CupMark className="mx-auto h-8 w-8 text-or/60" />
+          <BrandMark className="mx-auto h-16 w-auto opacity-70" />
           <p className="mt-5 font-display text-lg uppercase tracking-[0.24em] text-creme-soft">
             {settings.slogan}
           </p>

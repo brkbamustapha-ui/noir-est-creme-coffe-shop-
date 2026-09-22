@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CupMark } from "@/components/CupMark";
+import { BrandMark } from "@/components/Brand";
 import { prepareImage } from "@/lib/image";
 import type { Item, MenuSection, Settings } from "@/lib/types";
 
@@ -200,7 +200,7 @@ export function AdminDashboard({ sections, settings, offline, missingCount, user
       <header className="sticky top-0 z-40 border-b border-creme/10 bg-noir/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="flex items-center gap-3">
-            <CupMark className="h-7 w-7 shrink-0 text-or" />
+            <BrandMark className="h-9 w-auto shrink-0" />
             <div className="leading-tight">
               <p className="font-display text-lg uppercase tracking-[0.14em] text-creme-soft">
                 Noir et Crème

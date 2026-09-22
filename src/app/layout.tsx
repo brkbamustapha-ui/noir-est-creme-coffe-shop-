@@ -25,6 +25,12 @@ export const metadata: Metadata = {
     description: "L'art du café, l'esprit frais. Gambetta, Oran.",
     type: "website",
   },
+  // the logo card in app/opengraph-image.jpg is what gets shared
+  twitter: {
+    card: "summary_large_image",
+    title: "Noir et Crème — Carte",
+    description: "L'art du café, l'esprit frais. Gambetta, Oran.",
+  },
 };
 
 export const viewport: Viewport = {

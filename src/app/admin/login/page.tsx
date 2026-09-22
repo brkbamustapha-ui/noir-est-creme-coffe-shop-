@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CupMark } from "@/components/CupMark";
+import { BrandLockup } from "@/components/Brand";
 
 function LoginForm() {
   const router = useRouter();
@@ -41,11 +41,10 @@ function LoginForm() {
     <main className="flex min-h-dvh items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center">
-          <CupMark className="mx-auto h-11 w-11 text-or" />
-          <h1 className="mt-5 font-display text-3xl font-light uppercase tracking-[0.16em] text-creme-soft">
-            Noir et Crème
+          <h1 className="flex justify-center">
+            <BrandLockup priority alt="Noir et Crème" className="h-auto w-52" />
           </h1>
-          <p className="mt-2 font-body text-[11px] uppercase tracking-[0.28em] text-creme-muted">
+          <p className="mt-4 font-body text-[11px] uppercase tracking-[0.28em] text-creme-muted">
             Espace administration
           </p>
         </div>
